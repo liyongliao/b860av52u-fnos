@@ -16,6 +16,17 @@
 
 binary init 中保留实测网络配置，私有发行包原测试网段与源码示例 IP 不同。换网段必须重建 initramfs，不能只改服务端 IP 就认为适配完成。内核、DTB、initramfs 的来源见项目 NOTICE。诊断不含客户端 SSH 私钥。
 
+## 换网段与 MAC
+
+先复制 artifacts 留一份原始备份，使用包内脚本配置静态地址；脚本同时修正 uImage CRC 与 Android boot.img ramdisk/ID。只操作本地文件，不写设备：
+
+```sh
+python3 configure.py --ip 192.168.1.50 --server 192.168.1.10 --gateway 192.168.1.1
+# 换成你的盒子 MAC，可再添加 --mac 02:00:00:00:00:50，需安装 dtc/fdtput。
+```
+
+保持 /24 网段，修改后的新组合尚需在自己的盒子实测。然后使用下方同一组 U-Boot 地址。
+
 ## 服务端
 
 Docker 将受限 UDP69 映射出来（在解压目录运行）：
