@@ -1,0 +1,56 @@
+See SPARSE_COMPATIBILITY_REVIEW.txt for the complete independent static review.
+
+Candidate-specific summary (parent-reported encoder metrics)
+-----------------------------------------------------------
+Block size4096, maximum expanded chunk8MiB, total chunks5285.
+Backup metadata consumption28+5285*12=63,448bytes, well inside the stock2MiB
+area. Per-chunk32-bit multiplication cannot overflow at8MiB. Sparse size is
+2,551,390,732bytes; expected device readback is2,551,327,284bytes. Parent reports
+byte-for-byte expansion equality with the original5GiB raw filesystem and is
+independently checking the sparse reconstruction SHA1 against original offsets.
+Those runtime encoder results are the parent's checks, not invented by this
+static reviewer.
+
+Independent read-only header walk of emmc-rootfs-5g.sparse subsequently confirms:
+major1/minor0/header28/chunk12/block4096/total_blks1310720/checksum0;
+2584RAW chunks and2701FILL chunks (all patterns zero); logical length5368709120;
+maximum expanded chunk8388608bytes; final record ends exactly at file length.
+No FILL16-byte record crosses a64KiB or64MiB file-offset boundary. This is a
+structural check, not a second claim of full raw content hashing.
+
+Exact BL33 confirmation
+-----------------------
+Normalized base0x01000000, decoded BL33 SHA256:
+3adc539cb68a8421df311a4ce403fd56c2759bee54044143d21ac9e7741574af
+
+FILL implementation:0x0104c650-0x0104c7d4, validates total_sz16 and writes the
+32-bit pattern via64KiB fill buffer. Call0x0104c778 performs storage writes.
+Erase shortcut:0x0104c69c-0x0104c6e4 skips FILL0 writes on eMMC when erase has
+already been reported by storage initialization; it assumes erased bytes zero.
+No-erase disk_initial0 instead executes actual zero writes. Do not claim FILL0
+always physically rewrites every byte regardless of host erase options.
+
+Sparse VERIFY:0x0104b27c-0x0104b384 hashes original backed-up header bytes plus
+readback data. Chunk helper0x0104c908 returns full RAW bytes, but FILL only4bytes
+at0x0104ca1c-0x0104ca40. Accordingly the expected digest is SHA1 of the serialized
+sparse file. For FILL it validates only the first4bytes of each expanded region,
+not every zero byte. It is not a full5GiB raw-file hash verification.
+
+64-bit cumulative offset:0x0104ca80-0x0104ca94. Storage read keeps64-bit offsets
+at0x0104a05c and formats%llx at0x01022b5c. Write callback0x0104a3e8 widens32-bit
+512-byte sectors to64-bit byte addresses. The logical5GiB total is supported by
+these paths. Individual chunk lengths use32-bit multiplication at0x0104c988;
+the candidate8MiB cap avoids this overflow.
+
+Chunk backup:0x0104c3a4 initializes0x0b700000, each chunk copies12bytes at
+0x0104c83c. FILL buffer starts0x0b900000, leaving2MiB. No backup bounds check
+found; absolute capacity174760chunks. Candidate5285 is comfortably within it.
+
+Container fileType must be0xFE (not device-internal sparse type0xAE); VERIFY is
+48ASCII bytes sha1sum+space+40hex; no CRC32chunk (explicitly unsupported at
+0x0104c7d8). Standard header28/chunk12/major1 is checked by exact stock code.
+
+This supports RAW/FILL0 v2 compatibility, not a guarantee that the host's
+verification timeout disappears. Full cold-boot/filesystem behavior still needs
+the actual flash result. No live device access or final artifact changes were
+performed by this reviewer.

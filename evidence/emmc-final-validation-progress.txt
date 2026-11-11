@@ -1,0 +1,19 @@
+UUID:             e8413606-5135-4b76-a0a1-284e9c7985a8
+Scrub started:    Thu Nov 12 00:53:07 2026
+Status:           running
+Duration:         0:03:05
+Time left:        0:01:07
+ETA:              Thu Nov 12 00:57:22 2026
+Total to scrub:   2.43GiB
+Bytes scrubbed:   1.78GiB  (73.28%)
+Rate:             9.87MiB/s
+Error summary:    no errors found
+active
+none mq-deadline kyber [bfq] 
+inactive
+active
+rx-checksumming: on
+tx-checksumming: on
+tcp-segmentation-offload: off
+generic-segmentation-offload: on
+generic-receive-offload: on

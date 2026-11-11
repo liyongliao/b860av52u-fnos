@@ -1,0 +1,129 @@
+Amlogic B860AV5.2-U offline container and boot-path findings
+=========================================================
+
+Scope
+-----
+No device was accessed by this investigation. No original image was modified.
+No fnOS final flash package was produced. Hybrid DTB is a candidate awaiting
+the parent agent's live bootm test. Container validity does not imply bootability.
+
+Container implementation and validation
+---------------------------------------
+aml_v2_pack.py is an offline streaming raw-item Amlogic V2 writer/validator.
+Commands:
+  python3 aml_v2_pack.py inspect IMAGE
+  python3 aml_v2_pack.py repack ORIGINAL OUTPUT \
+    --replace PARTITION:boot=BOOT_IMAGE --add PARTITION:data=RAW_BTRFS_IMAGE
+
+It preserves all unedited items, including USB DDR/UBOOT, bootloader and vendor
+DTB unless explicitly replaced. It can add PARTITION:env structurally, but env
+is not a dependable boot-control mechanism because of save_setting below.
+
+Header: little-endian <IIIQII36s, 64 bytes, version 2, magic 0x27b51956.
+Item: <IIQQQ256s256s32s, 576 bytes. Offset and size are 64-bit fields.
+CRC: bitwise complement of ordinary zlib CRC32 of all bytes starting at offset4.
+Raw item fileType is0. This tool deliberately rejects sparse replacements.
+VERIFY payload: 48 ASCII bytes, 'sha1sum ' followed by lowercase SHA1 hex;
+there is no trailing NUL or newline. SHA1 covers the exact raw partition bytes.
+Stock PARTITION reserved firstbyte is1, consistent with verify flag.
+Original alignment is4. Header reserved bytes and unedited item fields retained.
+
+Validation artifacts:
+  roundtrip-sha256.json -- full original rebuild is byte-for-byte identical:
+    7fb5dff90f1c096aa48dc7b870f311b3cc1461559a27cf38db48d206de313b1d
+  stock-roundtrip-verification.json -- original22 items, CRC and VERIFY pass.
+  synthetic-selftest-verification.json -- replace system, add data/env produces
+    26 items and correct CRC/all11 partition SHA1 checks. Synthetic payloads are
+    explicitly nonbootable and the output is named .bin, not a deliverable.
+
+Primary format source:
+  https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/drivers/usb/gadget/v2_burning/v2_common/amlImage_if.h
+Primary burning client reference:
+  https://github.com/Stane1983/aml-linux-usb-burn/blob/master/aml-flash
+Sources saved under source/. The client demonstrates generic iteration over
+PARTITION items, but does not establish the exact Windows utility behavior.
+Actual Windows acceptance of >4GiB containers remains an untested boundary.
+
+Environment overwrite: exact stock BL33 static evidence
+------------------------------------------------------
+USB_UBOOT.bin exactly equals PARTITION_bootloader.bin[81920:]. Decoded BL33
+SHA256: 3adc539cb68a8421df311a4ce403fd56c2759bee54044143d21ac9e7741574af.
+The static disassembly is uboot-static-disassembly.txt, normalized base0x1000000.
+
+save_setting dispatch at0x1049d8c calls0x104b884. This function queries whether
+TPL came from the burn package. If true it calls the default-environment helper
+at0x104b8a8, then sets firstboot and upgrade_step and calls saveenv at0x104b920.
+This corroborates source/v2_common__optimus_download.c:1269-1308.
+burn_complete is a distinct command. Do NOT claim burn_complete itself always
+resets env. The Windows host's exact command order is unknown; the existence of
+this standard save_setting path makes an env-payload boot design unreliable.
+
+Stock Android boot image
+------------------------
+See stock-boot-header.json. Android v0, page2048; gzip kernel10,772,215bytes;
+ramdisk555,018bytes; second95,552bytes. Kernel load0x01080000, ramdisk0x01000000,
+second0x00f00000, tags0x100. Header cmdline/name empty. dt_size field zero.
+Second starts at11331584 and is gzip-compressed AML multi-DTB v2 with6 entries;
+gunzip size374,784bytes. Copies are stock-boot-second*.bin.
+
+Gzip bootm support confirmed in exact BL33: at0x101691c gunzip output capacity
+is0x04000000 (64MiB). Parent's43MiB uncompressed Image fits this limit, subject
+to total compressed boot.img fitting the32MiB boot partition.
+
+DTB choice: second component alone DOES NOT override dtbpart
+-----------------------------------------------------------
+Exact stock board_late_init at0x100cdc8 runs store dtb read $dtb_mem_addr.
+Exact stock bootm at0x1015fd0 first gets dtb_mem_addr, defaults0x01000000, selects
+single/multi-DTB, and calls boot_get_fdt. On success this DTB wins. Only on
+failure does it process the saved Android second component, then copy fallback
+DTB to dtb_mem_addr. Thus a valid vendor DTB preloaded from dtbpart overrides a
+mainline DTB placed only in Android second.
+
+bootsys boot_process at0x100f9e8 selects boot/recovery. The extra emmc dtb_read
+command at0x100fb44 is specific to the ZTE-magic-matched recovery branch; plain
+boot uses imgread kernel boot ...; bootm ... . Both still encounter the earlier
+board_late_init DTB read and bootm DTB preference.
+
+Related official source:
+  https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/common/image-android.c
+  https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/common/bootm.c
+  https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/common/cmd_imgread.c
+This public tree is a close vendor2015-derived reference, not claimed to be the
+exact ZTE2024 source. Critical conclusions above have exact-stock disassembly.
+
+Fixups and hybrid candidate
+--------------------------
+bootm calls rsvmem check (stock0x1016a6c). This requires exact path
+/reserved-memory/linux,secmon and compatible 'shared-dma-pool' or
+'amlogic, aml_secmon_memory'. It may update reg/size/alloc-ranges using live
+secure firmware registers and alter /secmon and /reserved-memory/linux,secos.
+Source saved as source/common__cmd_rsvmem.c, and corresponding strings/code
+exist in stock BL33. The reserved compatible (rather than shared-dma-pool) keeps
+the region no-map and avoids CMA reuse of secure firmware memory.
+
+build_hybrid_dtb.py builds b860-emmc-hybrid-v1.dts/.dtb and exact .diff from
+parent's tested b860-emmc-v7.dts. The DTB includes16KiB slack for bootloader edits.
+Its validation JSON confirms unchanged /soc, /cpus, /thermal-zones, /scpi,
+/aliases, /chosen. Thus tested legacy eMMC and fixed100Mb/s generic DWMAC paths
+and disabled mainline SCPI/GPU/VPU/HDMI/thermal remain untouched.
+
+Changes relative to base:
+* Add amlogic-dt-id gxlx3_az201_1g and identify candidate in model.
+* Preserve vendor /partitions order/names/sizes/masks. Remap all imported vendor
+  phandles and metadata references by+0x1000 to avoid mainline collisions.
+* Rename the existing80MiB secure monitor and83MiB BL32 reservation nodes to
+  linux,secmon and linux,secos, with vendor reserved compatible and no-map.
+  Existing256MiB4MiB conservative secure reservation remains.
+* Add disabled /secmon metadata for vendor fixups. No mainline driver binds it.
+* Preserve disabled /efusekey, /unifykey, /vpu and /meson-fb metadata because
+  these exact root paths appear in stock BL33; unused vendor VPU clock links
+  are removed. No vendor hardware node is enabled for Linux.
+* Reserve0x3f800000..0x3fffffff no-map for stock display DMA/framebuffer, retain
+  /meson-fb properties and a valid remapped memory-region reference.
+* Rename memory@0 to literal memory, as stock architecture fixup probes /memory.
+
+dtc compile and independent DTB-to-DTS parse pass, phandle identifiers unique.
+Warnings include expected literal vendor node names without unit addresses and
+inherited mainline flattened-DTS numeric-reference warnings. No compile errors.
+This has NOT been tested on hardware. Additional vendor early-init DTB path
+dependencies and actual secure fixup register values remain runtime unknowns.

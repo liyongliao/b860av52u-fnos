@@ -1,0 +1,91 @@
+Cold bootsys Ethernet and initrd placement review
+================================================
+Read-only static review of existing decoded BL33. No live device access and no
+changes to the parent's current tests or candidate DTB.
+
+Ethernet conclusion
+-------------------
+The exact stock BL33 does initialize the Ethernet analog block/PLL and starts
+generic PHY autonegotiation during normal board initialization, before bootsys.
+TFTP/ping is not the first PHY configuration stage. Its additional phy_startup
+stage waits for and reads link status; it does not program extra PHY registers.
+This supports keeping the tested fixed100M DTB, without speculative PLL writes
+or enabling the previously problematic mainline MDIO/PHY blocks.
+
+Exact decoded BL33 evidence (base0x01000000):
+1. Normal init sequence contains initr_net pointer0x010159bc at file0xa43c0,
+   immediately followed by run_main_loop0x010159ac at file0xa43c8. The public
+   common/board_r.c init_sequence_r has the same ordering.
+2. initr_net0x010159bc prints Net, invokes eth_initialize0x0107bde0 at0x010159d4.
+3. eth_initialize invokes board_eth_init0x0100c5a0 at0x0107be68. The stock board
+   callback is selected by a real function pointer, not an unresolved weak hook.
+4. board_eth_init programs MAC/RMII control0xc8834540 and the GXLX3 PHY registers
+   0xc883a044/a048/a04c/a050/a058/a05c/a060/a080/a084/a088, enables gates at
+   0xc883c144/c140/c0dc and clears powerdown bits at0xc883c100. It then calls
+   designware_initialize0x0105c1e8 with base0xc9410000 and RMII interface6.
+5. designware_initialize registers the MAC, MDIO access callbacks and PHY,
+   then calls phy_config0x0105cf20 at0x0105c3b8. No network command is required.
+6. phy_init0x0105cd74 returns0 without registering dedicated PHY drivers.
+   The Generic PHY driver table at file0xaab88 contains:
+      name=0x0109fba4 ('Generic PHY')
+      config=0x0105c940
+      startup=0x0105cd48
+      shutdown=0x0105c3e4
+7. generic config reads PHY capabilities and calls genphy_config_aneg0x0105c72c
+   at0x0105ca30. This sets advertisements and starts/restarts autonegotiation
+   when required. Generic PHY setup therefore already runs during cold init.
+8. dw_eth_init0x0105bf64, invoked by network use, additionally resets/enables MAC
+   DMA and calls phy_startup0x0105ced0 at0x0105c0d8. This resolves to
+   genphy_startup0x0105cd48, which calls only genphy_update_link0x0105ca44 and
+   genphy_parse_link0x0105cb98. Both use MDIO read callbacks; startup does not
+   issue MDIO writes. It waits for autoneg completion and determines speed.
+9. Linux stmmac with the existing fixed-link separately resets/configures its
+   own MAC/DMA, so retaining U-Boot's DMA setup is not needed for its data path.
+
+Practical recommendation:
+Keep the already tested DTB unchanged. Initramfs first network attempts should
+allow several seconds of retry because cold eMMC boot reaches Linux faster
+than TFTP boot, and a fixed link reports carrier even while the physical PHY
+is still negotiating. A failed early ping is not proof that PHY reprogramming
+is needed. Network delivery should not be a prerequisite to mounting the local
+root filesystem. Final cold-power-on validation remains necessary; static
+analysis is not a claim that this exact untethered boot has already succeeded.
+
+Primary source references, locally saved in source/:
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/common/board_r.c
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/net/eth.c
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/drivers/net/designware.c
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/drivers/net/phy/phy.c
+These explain the algorithms; board MMIO addresses above come from exact stock
+BL33, not the public GXL board reference (which has different PHY registers).
+
+initrd_high and mem=896M
+-----------------------
+There is no default bootloader guarantee that Linux mem=896M constrains initrd
+placement. Exact boot_ramdisk_high0x0103852c, when initrd_high is absent, sets
+the allocator upper bound to all-ones at0x010385ac and calls LMB allocation.
+The allocator's RAM comes from bootm_low/bootm_size or gd board RAM; the Linux
+bootargs mem=896M string is not parsed by this path. Thus a placement above896MiB
+is possible in principle if the LMB free region extends there.
+
+However, this is not an observed failure on this box. Exact arch_lmb_reserve
+at0x0100c07c reserves currentSP-4096 through the board's RAM end, which can keep
+allocation below896MiB depending on the vendor relocation/malloc layout.
+Parent's trial17 explicitly cleared initrd_high and successfully entered the
+same2.2MiB initramfs with mem=896M. Kernel log confirms successful decompression
+and Freeing initrd memory:2248K. That runtime evidence supersedes a hypothetical
+claim that missing initrd_high must break this candidate.
+
+Do not change the currently successful DTB on this basis. A larger future
+initrd/root-memory configuration should be checked again. Android v0 header
+ramdisk_addr is not an effective cap: this implementation discovers ramdisk
+inside the Android image and relocates through LMB. Adding initrd_high=... to
+the kernel command line also does not change the U-Boot environment. If a real
+placement failure is observed, an explicit bootloader environment limit or an
+appropriately validated LMB memory constraint is required; initramfs runs too
+late to repair its own inaccessible placement.
+
+Primary source:
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/common/image.c
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/common/bootm.c
+https://android.googlesource.com/platform/external/u-boot/+/refs/heads/android-tv-s-beta3/arch/arm/lib/bootm.c

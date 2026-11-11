@@ -1,0 +1,77 @@
+B860 RAM-only eMMC read diagnostic
+Linux (none) 6.18.18-trim #510 SMP PREEMPT Tue Apr 21 01:38:48 UTC 2026 aarch64 GNU/Linux
+rootfstype=ramfs init=/init console=ttyS0,115200 no_console_suspend earlyprintk=aml-uart,0xc81004c0 ramoops.pstore_en=1 ramoops.record_size=0x8000 ramoops.console_size=0x4000 use_cma_first=1 androidboot.selinux=disabled cuva_enable=1 hdr_policy=1 frac_rate_policy=0 logo=osd1,loaded,0x3d800000,720p60hz vout=720p60hz,enable hdmimode=720p60hz cvbsmode=576cvbs hdmitx=,444,8bit cvbsdrv=0 androidboot.firstboot=1 jtag=disable loglevel=0 androidboot.hardware=amlogic androidboot.boardid=9 defendkey=0x08300000,0x100000 console=ttyAML0,115200n8 console=tty0 no_console_suspend mem=896M cma=128M net.ifnames=0 clk_ignore_unused pd_ignore_unused panic=20 androidboot.uboot_time=751/991/74363 
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq qlen 1000
+    link/ether 02:00:00:00:00:01 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.50/24 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 2001:db8::50/64 scope global tentative dynamic flags 100 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::9aee:8cff:fe10:af0a/64 scope link 
+       valid_lft forever preferred_lft forever
+PING 192.168.1.10 (192.168.1.10): 56 data bytes
+64 bytes from 192.168.1.10: seq=0 ttl=64 time=49.132 ms
+64 bytes from 192.168.1.10: seq=1 ttl=64 time=4.232 ms
+
+--- 192.168.1.10 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 4.232/26.682/49.132 ms
+major minor  #blocks  name
+
+ 179        0    7667712 mmcblk2
+ 179       32       4096 mmcblk2boot0
+ 179       64       4096 mmcblk2boot1
+/sys/kernel/debug/mmc0/ios
+clock:		0 Hz
+vdd:		0 (invalid)
+bus mode:	2 (push-pull)
+chip select:	0 (don't care)
+power mode:	0 (off)
+bus width:	0 (1 bits)
+timing spec:	0 (legacy)
+signal voltage:	1 (1.80 V)
+driver type:	0 (driver type B)
+/sys/kernel/debug/mmc1/ios
+clock:		0 Hz
+vdd:		0 (invalid)
+bus mode:	2 (push-pull)
+chip select:	0 (don't care)
+power mode:	0 (off)
+bus width:	0 (1 bits)
+timing spec:	0 (legacy)
+signal voltage:	1 (1.80 V)
+driver type:	0 (driver type B)
+/sys/kernel/debug/mmc2/ios
+clock:		20000000 Hz
+actual clock:	12000000 Hz
+vdd:		21 (3.3 ~ 3.4 V)
+bus mode:	2 (push-pull)
+chip select:	0 (don't care)
+power mode:	2 (on)
+bus width:	3 (8 bits)
+timing spec:	0 (legacy)
+signal voltage:	1 (1.80 V)
+driver type:	0 (driver type B)
+EMMC /sys/block/mmcblk2
+15335424
+05S000
+MMC
+READ CHECK 1 /dev/mmcblk2
+4+0 records in
+4+0 records out
+4194304 /run/mmc-sample.bin
+b1e73e3a8a0f92644fca5a8a555adc11bbcbb78b1fffe893725de83d451cb4cd  /run/mmc-sample.bin
+READ CHECK 2 /dev/mmcblk2
+4+0 records in
+4+0 records out
+4194304 /run/mmc-sample.bin
+b1e73e3a8a0f92644fca5a8a555adc11bbcbb78b1fffe893725de83d451cb4cd  /run/mmc-sample.bin
+0 10485760 linear 179:0 4456448
+4+0 records in
+4+0 records out
+4194304 /run/data-sample.bin
+8994e8d362538e155d1caff73e7182815fabb7fb4a56c20af1d620ac44381e6b  /run/data-sample.bin
+7.52 27.26
+No eMMC writes performed
+Segmentation fault
+Segmentation fault

@@ -1,0 +1,416 @@
+--- <workspace>/work/b860av52u/b860-emmc-v7.dts
++++ <workspace>/work/b860av52u/emmc-package/b860-emmc-hybrid-v1.dts
+@@ -5,7 +5,8 @@
+ 	#address-cells = <0x02>;
+ 	#size-cells = <0x02>;
+ 	compatible = "amlogic,m302a", "amlogic,s905w", "amlogic,meson-gxl";
+-	model = "B860AV5.2-U internal eMMC legacy 20MHz diagnostic";
++	model = "B860AV5.2-U fnOS eMMC bootm hybrid candidate v1";
++	amlogic-dt-id = "gxlx3_az201_1g";
+ 
+ 	aliases {
+ 		mmc0 = "/soc/apb@d0000000/mmc@70000";
+@@ -32,13 +33,15 @@
+ 			phandle = <0x41>;
+ 		};
+ 
+-		secmon_reserved_alt: secmon@5000000 {
++		secmon_reserved_alt: linux,secmon {
++			compatible = "amlogic, aml_secmon_memory";
+ 			reg = <0x00 0x5000000 0x00 0x300000>;
+ 			no-map;
+ 			phandle = <0x42>;
+ 		};
+ 
+-		secmon_reserved_bl32: secmon@5300000 {
++		secmon_reserved_bl32: linux,secos {
++			compatible = "amlogic, aml_secos_memory";
+ 			reg = <0x00 0x5300000 0x00 0x2000000>;
+ 			no-map;
+ 			phandle = <0x43>;
+@@ -50,6 +53,13 @@
+ 			size = <0x00 0x8000000>;
+ 			alignment = <0x00 0x400000>;
+ 			linux,cma-default;
++		};
++	
++
++		linux,meson-fb {
++			reg = <0x00 0x3f800000 0x00 0x800000>;
++			no-map;
++			phandle = <0x105a>;
+ 		};
+ 	};
+ 
+@@ -1754,7 +1764,7 @@
+ 		phandle = <0x3e>;
+ 	};
+ 
+-	memory@0 {
++	memory {
+ 		device_type = "memory";
+ 		reg = <0x00 0x00 0x00 0x40000000>;
+ 	};
+@@ -1911,8 +1921,8 @@
+ 	__symbols__ {
+ 		hwrom_reserved = "/reserved-memory/hwrom@0";
+ 		secmon_reserved = "/reserved-memory/secmon@10000000";
+-		secmon_reserved_alt = "/reserved-memory/secmon@5000000";
+-		secmon_reserved_bl32 = "/reserved-memory/secmon@5300000";
++		secmon_reserved_alt = "/reserved-memory/linux,secmon";
++		secmon_reserved_bl32 = "/reserved-memory/linux,secos";
+ 		simplefb_cvbs = "/chosen/framebuffer-cvbs";
+ 		simplefb_hdmi = "/chosen/framebuffer-hdmi";
+ 		cpu0 = "/cpus/cpu@0";
+@@ -2082,4 +2092,351 @@
+ 		cvbs_connector_in = "/cvbs-connector/port/endpoint";
+ 		hdmi_connector_in = "/hdmi-connector/port/endpoint";
+ 	};
++
++	partitions {
++		parts = <0x0c>;
++		part-0 = <0x1038>;
++		part-1 = <0x1039>;
++		part-2 = <0x103a>;
++		part-3 = <0x103b>;
++		part-4 = <0x103c>;
++		part-5 = <0x103d>;
++		part-6 = <0x103e>;
++		part-7 = <0x103f>;
++		part-8 = <0x1040>;
++		part-9 = <0x1041>;
++		part-10 = <0x1042>;
++		part-11 = <0x1043>;
++		phandle = <0x10da>;
++
++		conf {
++			pname = "conf";
++			size = <0x00 0x400000>;
++			mask = <0x01>;
++			phandle = <0x1038>;
++		};
++
++		logo {
++			pname = "logo";
++			size = <0x00 0x2000000>;
++			mask = <0x01>;
++			phandle = <0x1039>;
++		};
++
++		recovery {
++			pname = "recovery";
++			size = <0x00 0x2000000>;
++			mask = <0x01>;
++			phandle = <0x103a>;
++		};
++
++		rsv {
++			pname = "rsv";
++			size = <0x00 0x800000>;
++			mask = <0x01>;
++			phandle = <0x103b>;
++		};
++
++		tee {
++			pname = "tee";
++			size = <0x00 0x800000>;
++			mask = <0x01>;
++			phandle = <0x103c>;
++		};
++
++		crypt {
++			pname = "crypt";
++			size = <0x00 0x2000000>;
++			mask = <0x01>;
++			phandle = <0x103d>;
++		};
++
++		misc {
++			pname = "misc";
++			size = <0x00 0x2000000>;
++			mask = <0x01>;
++			phandle = <0x103e>;
++		};
++
++		boot {
++			pname = "boot";
++			size = <0x00 0x2000000>;
++			mask = <0x01>;
++			phandle = <0x103f>;
++		};
++
++		system {
++			pname = "system";
++			size = <0x00 0x40000000>;
++			mask = <0x01>;
++			phandle = <0x1040>;
++		};
++
++		env {
++			pname = "env";
++			size = <0x00 0x800000>;
++			mask = <0x01>;
++			phandle = <0x1041>;
++		};
++
++		cache {
++			pname = "cache";
++			size = <0x00 0x30000000>;
++			mask = <0x02>;
++			phandle = <0x1042>;
++		};
++
++		data {
++			pname = "data";
++			size = <0xffffffff 0xffffffff>;
++			mask = <0x04>;
++			phandle = <0x1043>;
++		};
++	};
++
++	efusekey {
++		status = "disabled";
++		keynum = <0x04>;
++		key0 = <0x1028>;
++		key1 = <0x1029>;
++		key2 = <0x102a>;
++		key3 = <0x102b>;
++		phandle = <0x1027>;
++
++		key_0 {
++			keyname = "mac";
++			offset = <0x00>;
++			size = <0x06>;
++			phandle = <0x1028>;
++		};
++
++		key_1 {
++			keyname = "mac_bt";
++			offset = <0x06>;
++			size = <0x06>;
++			phandle = <0x1029>;
++		};
++
++		key_2 {
++			keyname = "mac_wifi";
++			offset = <0x0c>;
++			size = <0x06>;
++			phandle = <0x102a>;
++		};
++
++		key_3 {
++			keyname = "usid";
++			offset = <0x12>;
++			size = <0x18>;
++			phandle = <0x102b>;
++		};
++	};
++
++	unifykey {
++		compatible = "amlogic, unifykey";
++		status = "disabled";
++		unifykey-num = <0x15>;
++		unifykey-index-0 = <0x1044>;
++		unifykey-index-1 = <0x1045>;
++		unifykey-index-2 = <0x1046>;
++		unifykey-index-3 = <0x1047>;
++		unifykey-index-4 = <0x1048>;
++		unifykey-index-5 = <0x1049>;
++		unifykey-index-6 = <0x104a>;
++		unifykey-index-7 = <0x104b>;
++		unifykey-index-8 = <0x104c>;
++		unifykey-index-9 = <0x104d>;
++		unifykey-index-10 = <0x104e>;
++		unifykey-index-11 = <0x104f>;
++		unifykey-index-12 = <0x1050>;
++		unifykey-index-13 = <0x1051>;
++		unifykey-index-14 = <0x1052>;
++		unifykey-index-15 = <0x1053>;
++		unifykey-index-16 = <0x1054>;
++		unifykey-index-17 = <0x1055>;
++		unifykey-index-18 = <0x1056>;
++		unifykey-index-19 = <0x1057>;
++		unifykey-index-20 = <0x1058>;
++
++		key_0 {
++			key-name = "usid";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x1044>;
++		};
++
++		key_1 {
++			key-name = "mac";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x1045>;
++		};
++
++		key_2 {
++			key-name = "hdcp";
++			key-device = "secure";
++			key-type = "sha1";
++			key-permit = "read", "write", "del";
++			phandle = <0x1046>;
++		};
++
++		key_3 {
++			key-name = "secure_boot_set";
++			key-device = "efuse";
++			key-permit = "write";
++			phandle = <0x1047>;
++		};
++
++		key_4 {
++			key-name = "mac_bt";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			key-type = "mac";
++			phandle = <0x1048>;
++		};
++
++		key_5 {
++			key-name = "mac_wifi";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			key-type = "mac";
++			phandle = <0x1049>;
++		};
++
++		key_6 {
++			key-name = "hdcp2_tx";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x104a>;
++		};
++
++		key_7 {
++			key-name = "hdcp2_rx";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x104b>;
++		};
++
++		key_8 {
++			key-name = "widevinekeybox";
++			key-device = "secure";
++			key-permit = "read", "write", "del";
++			phandle = <0x104c>;
++		};
++
++		key_9 {
++			key-name = "deviceid";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x104d>;
++		};
++
++		key_10 {
++			key-name = "hdcp22_fw_private";
++			key-device = "secure";
++			key-permit = "read", "write", "del";
++			phandle = <0x104e>;
++		};
++
++		key_11 {
++			key-name = "Licensekey";
++			key-device = "normal";
++			key-permit = "read", "write";
++			phandle = <0x104f>;
++		};
++
++		key_12 {
++			key-name = "mac_en";
++			key-device = "normal";
++			key-permit = "read", "write";
++			phandle = <0x1050>;
++		};
++
++		key_13 {
++			key-name = "stbid_en";
++			key-device = "normal";
++			key-permit = "read", "write";
++			phandle = <0x1051>;
++		};
++
++		key_14 {
++			key-name = "Market";
++			key-device = "normal";
++			key-permit = "read", "write";
++			phandle = <0x1052>;
++		};
++
++		key_15 {
++			key-name = "Operator";
++			key-device = "normal";
++			key-permit = "read", "write";
++			phandle = <0x1053>;
++		};
++
++		key_16 {
++			key-name = "netflix_mgkid";
++			key-device = "secure";
++			key-permit = "read", "write", "del";
++			phandle = <0x1054>;
++		};
++
++		key_17 {
++			key-name = "attestationdevidbox";
++			key-device = "secure";
++			key-permit = "read", "write", "del";
++			phandle = <0x1055>;
++		};
++
++		key_18 {
++			key-name = "oemkey";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x1056>;
++		};
++
++		key_19 {
++			key-name = "cmei";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x1057>;
++		};
++
++		key_20 {
++			key-name = "authkey";
++			key-device = "normal";
++			key-permit = "read", "write", "del";
++			phandle = <0x1058>;
++		};
++	};
++
++	vpu {
++		compatible = "amlogic, vpu-gxlx3";
++		dev_name = "vpu";
++		status = "disabled";
++		clk_level = <0x07>;
++		phandle = <0x10d3>;
++	};
++
++	meson-fb {
++		compatible = "amlogic, meson-gxl";
++		memory-region = <0x105a>;
++		dev_name = "meson-fb";
++		status = "disabled";
++		interrupts = <0x00 0x03 0x01 0x00 0x59 0x01>;
++		interrupt-names = "viu-vsync", "rdma";
++		mem_size = <0x800000 0x1800000 0x100000>;
++		display_mode_default = "1080p60hz";
++		scale_mode = <0x01>;
++		display_size_default = <0x780 0x438 0x780 0xca8 0x20>;
++		logo_addr = "0x3f800000";
++	};
++
++	secmon {
++		compatible = "amlogic, secmon";
++		status = "disabled";
++		memory-region = <0x42>;
++		in_base_func = <0x82000020>;
++		out_base_func = <0x82000021>;
++		reserve_mem_size = <0x300000>;
++	};
+ };

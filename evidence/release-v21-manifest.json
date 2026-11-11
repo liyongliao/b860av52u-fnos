@@ -1,0 +1,19 @@
+{
+  "archive": "B860AV5.2U_FNOS_eMMC_v2.1_sparse.img.zst",
+  "archive_sha256": "a8bdaff7f9bdb57ac2795825e3a58256c4d943a8e371ed517076285949748380",
+  "image": "B860AV5.2U_FNOS_eMMC_v2.1_sparse.img",
+  "image_bytes": 3734115592,
+  "image_sha256": "27026445286bf993514a3d19e26d602308d67ac18cdae04edf3dc7524e9063d5",
+  "parts": [
+    {
+      "name": "B860AV5.2U_FNOS_eMMC_v2.1_sparse.img.zst.part01",
+      "bytes": 1610612736,
+      "sha256": "c9b9ada51f46268f8ca79b0a1b33cdd62faac4f29be38354f17b4b07b4c2a755"
+    },
+    {
+      "name": "B860AV5.2U_FNOS_eMMC_v2.1_sparse.img.zst.part02",
+      "bytes": 635856623,
+      "sha256": "65d4812dd8ff71b8b1cb31ec66e7ce608bde0397ba1976ddd5fe40e5033f935d"
+    }
+  ]
+}

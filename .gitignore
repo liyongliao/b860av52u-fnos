@@ -1,0 +1,15 @@
+*.img
+*.zst
+*.part[0-9]*
+*.bin
+*.cpio*
+*.uimg
+*.dtb
+network-boot/artifacts/
+__pycache__/
+*.pyc
+logs/
+*.key
+*ed25519*
+.env
+.DS_Store

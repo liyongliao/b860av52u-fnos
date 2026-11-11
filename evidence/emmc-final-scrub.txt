@@ -1,0 +1,14 @@
+UUID:             e8413606-5135-4b76-a0a1-284e9c7985a8
+Scrub started:    Thu Nov 12 00:53:07 2026
+Status:           finished
+Duration:         0:04:10
+Total to scrub:   2.43GiB
+Rate:             9.97MiB/s
+Error summary:    no errors found
+[/dev/mapper/fnos-root].write_io_errs    0
+[/dev/mapper/fnos-root].read_io_errs     0
+[/dev/mapper/fnos-root].flush_io_errs    0
+[/dev/mapper/fnos-root].corruption_errs  0
+[/dev/mapper/fnos-root].generation_errs  0
+ 00:57:37 up 18 min,  0 user,  load average: 1.52, 1.99, 3.42
+active

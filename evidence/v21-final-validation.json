@@ -1,0 +1,196 @@
+{
+  "path": "<workspace>/outputs/B860AV5.2U_FNOS_eMMC_v2.1_sparse.img",
+  "size": 3734115592,
+  "version": 2,
+  "item_count": 24,
+  "alignment": 4,
+  "crc": "0x54f827a6",
+  "crc_valid": true,
+  "partition_sha1_verified": [
+    "boot",
+    "bootloader",
+    "conf",
+    "logo",
+    "misc",
+    "recovery",
+    "rsv",
+    "system",
+    "tee",
+    "data"
+  ],
+  "items": [
+    {
+      "key": "USB:DDR",
+      "file_type": 0,
+      "offset": 13888,
+      "size": 81920,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "USB:UBOOT",
+      "file_type": 0,
+      "offset": 95808,
+      "size": 884736,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:boot",
+      "file_type": 0,
+      "offset": 980544,
+      "size": 18794496,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:boot",
+      "file_type": 0,
+      "offset": 19775040,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:bootloader",
+      "file_type": 0,
+      "offset": 19775088,
+      "size": 966656,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:bootloader",
+      "file_type": 0,
+      "offset": 20741744,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:conf",
+      "file_type": 0,
+      "offset": 20741792,
+      "size": 4194304,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:conf",
+      "file_type": 0,
+      "offset": 24936096,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:logo",
+      "file_type": 0,
+      "offset": 24936144,
+      "size": 121168,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:logo",
+      "file_type": 0,
+      "offset": 25057312,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "dtb:meson1",
+      "file_type": 0,
+      "offset": 25057360,
+      "size": 63596,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:misc",
+      "file_type": 0,
+      "offset": 25120956,
+      "size": 33554432,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:misc",
+      "file_type": 0,
+      "offset": 58675388,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "conf:platform",
+      "file_type": 0,
+      "offset": 58675436,
+      "size": 202,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:recovery",
+      "file_type": 0,
+      "offset": 58675640,
+      "size": 33554432,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:recovery",
+      "file_type": 0,
+      "offset": 92230072,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:rsv",
+      "file_type": 0,
+      "offset": 92230120,
+      "size": 8388608,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:rsv",
+      "file_type": 0,
+      "offset": 100618728,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:system",
+      "file_type": 0,
+      "offset": 100618776,
+      "size": 1073741824,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:system",
+      "file_type": 0,
+      "offset": 1174360600,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:tee",
+      "file_type": 0,
+      "offset": 1174360648,
+      "size": 8388608,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:tee",
+      "file_type": 0,
+      "offset": 1182749256,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "PARTITION:data",
+      "file_type": 254,
+      "offset": 1182749304,
+      "size": 2551366240,
+      "reserved_hex": "0100000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "key": "VERIFY:data",
+      "file_type": 0,
+      "offset": 3734115544,
+      "size": 48,
+      "reserved_hex": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "sha256": "27026445286bf993514a3d19e26d602308d67ac18cdae04edf3dc7524e9063d5",
+  "only_changed_items": [
+    "PARTITION:data",
+    "VERIFY:data"
+  ]
+}
