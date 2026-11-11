@@ -22,6 +22,7 @@
 - [踩坑日志：从 U 盘到网络引导，再到 eMMC](docs/PITFALLS.md)
 - [技术适配与分区布局](docs/ADAPTATION.md)
 - [线刷包下载、还原、启动](docs/FLASHING.md)
+- [公开 eMMC 适配调整组件](docs/ADJUSTMENT-PACK.md)
 - [网络引导独立入口](network-boot/README.md)
 - [格式与打包工具](tools/README.md)
 - [来源及二进制授权边界](NOTICE.md)
@@ -36,6 +37,7 @@
 |---|---|---|
 | 私有备份 `emmc-v1-verified` | 原始线刷包备份 | 实机曾在 83% 校验超时，但随后成功启动并通过 scrub |
 | 私有备份 `emmc-v2.1-sparse` | 精简传输的备用线刷包 | 沿用成功的 boot/DTB/bootloader，RAW/FILL0 稀疏化；仅本地验证 |
+| `board-adaptation-v1` | 公开适配组件：成功的 boot/initramfs/DTB/工具，不含系统账户密钥 | 原始组件实机启动通过 |
 | `netboot-diagnostic-v1` | 独立网络引导包 | RAM 中诊断与 eMMC 只读检查，不是完整无盘 NAS 系统 |
 
 当前已经运行的盒子 **无需为了换包重复烧录**。首次启动应预留约 15 分钟，持续通电观察网络。HDMI 本版未启用。成功后访问 `http://盒子IP:5666/`。
